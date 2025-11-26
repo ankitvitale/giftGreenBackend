@@ -34,7 +34,9 @@ public class SecurityConfig {
             "/api/add",
             "/api/all",
             "/api/categories/all",
-            "/api/categories/type/{type}"
+            "/api/categories/type/{type}",
+            "/api/banners/all",
+            "/api/banners/{id}"
 
     };
 
