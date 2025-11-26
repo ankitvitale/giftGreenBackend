@@ -4,6 +4,7 @@ import com.giftGreenEcom.Entity.Category;
 import com.giftGreenEcom.Service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +17,7 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @PostMapping("/add")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<Category> addCategory(@RequestBody Category category) {
         return ResponseEntity.ok(categoryService.addCategory(category));
     }
@@ -31,12 +33,14 @@ public class CategoryController {
     }
 
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<String> deleteCategory(@PathVariable Long id) {
         categoryService.deleteCategory(id);
         return ResponseEntity.ok("Category deleted successfully");
     }
 
     @PutMapping("/update/{id}")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<Category> updateCategory(
             @PathVariable Long id,
             @RequestBody Category updatedCategory) {

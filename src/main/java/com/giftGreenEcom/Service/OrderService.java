@@ -1,7 +1,10 @@
 package com.giftGreenEcom.Service;
 
 
+import com.giftGreenEcom.DTO.AddressDto.ShippingAddressDto;
 import com.giftGreenEcom.DTO.PlaceOrderDto.OrderItemRequest;
+import com.giftGreenEcom.DTO.PlaceOrderDto.OrderRespond.OrderItemResponseDTO;
+import com.giftGreenEcom.DTO.PlaceOrderDto.OrderRespond.OrderResponseDTO;
 import com.giftGreenEcom.DTO.PlaceOrderDto.PlaceOrderRequest;
 import com.giftGreenEcom.Entity.*;
 import com.giftGreenEcom.Repository.*;
@@ -100,4 +103,52 @@ public class OrderService {
         return orderRepository.findByUser(user);
     }
 
+    public List<OrderResponseDTO> getAllOrders() {
+        List<Order> orders = orderRepository.findAllByOrderByCreatedAtDesc();
+
+        return orders.stream().map(order -> {
+            OrderResponseDTO dto = new OrderResponseDTO();
+            dto.setOrderId(order.getId());
+            dto.setTotalAmount(order.getTotalAmount());
+            dto.setPaymentMethod(order.getPaymentMethod());
+            dto.setStatus(order.getStatus());
+            dto.setCreatedAt(order.getCreatedAt());
+            dto.setRazorpayOrderId(order.getRazorpayOrderId());
+            dto.setRazorpayPaymentId(order.getRazorpayPaymentId());
+            dto.setRazorpaySignature(order.getRazorpaySignature());
+            dto.setUserId(order.getUser().getId());
+            dto.setUserName(order.getUser().getName());
+            dto.setUserEmail(order.getUser().getEmail());
+
+            // Shipping address
+            if(order.getShippingAddress() != null) {
+                ShippingAddressDto sa = new ShippingAddressDto();
+                sa.setId(order.getShippingAddress().getId());
+                sa.setFullName(order.getShippingAddress().getFullName());
+                sa.setCity(order.getShippingAddress().getCity());
+                sa.setState(order.getShippingAddress().getState());
+                sa.setCountry(order.getShippingAddress().getCountry());
+                sa.setStreet(order.getShippingAddress().getStreet());
+                sa.setZipCode(order.getShippingAddress().getZipCode());
+                sa.setPhoneNumber(order.getShippingAddress().getPhoneNumber());
+                dto.setShippingAddress(sa);
+            }
+
+            // Order items
+            List<OrderItemResponseDTO> items = order.getOrderItems().stream().map(item -> {
+                OrderItemResponseDTO itemDTO = new OrderItemResponseDTO();
+                itemDTO.setId(item.getId());
+                itemDTO.setProductId(item.getProduct().getId());
+                itemDTO.setVariantId(item.getVariant().getId());
+                itemDTO.setQuantity(item.getQuantity());
+                itemDTO.setPrice(item.getPrice());
+                itemDTO.setDiscountedPrice(item.getDiscountedPrice());
+                return itemDTO;
+            }).toList();
+
+            dto.setOrderItems(items);
+
+            return dto;
+        }).toList();
+    }
 }

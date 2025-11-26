@@ -2,6 +2,7 @@ package com.giftGreenEcom.Controller;
 
 import com.giftGreenEcom.DTO.PlaceOrderDto.OrderHistoryItemResponse;
 import com.giftGreenEcom.DTO.PlaceOrderDto.OrderHistoryResponse;
+import com.giftGreenEcom.DTO.PlaceOrderDto.OrderRespond.OrderResponseDTO;
 import com.giftGreenEcom.DTO.PlaceOrderDto.PlaceOrderRequest;
 import com.giftGreenEcom.Entity.Order;
 import com.giftGreenEcom.Service.OrderService;
@@ -63,6 +64,13 @@ public class OrderController {
         ).toList();
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('Admin')")
+    public ResponseEntity<List<OrderResponseDTO>> getAllOrders() {
+        List<OrderResponseDTO> orders = orderService.getAllOrders();
+        return ResponseEntity.ok(orders);
     }
 
 }

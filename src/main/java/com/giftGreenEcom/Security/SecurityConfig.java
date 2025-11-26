@@ -32,7 +32,9 @@ public class SecurityConfig {
             "/api/product/update/{id}",
             "/api/Allcategory",
             "/api/add",
-            "/api/all"
+            "/api/all",
+            "/api/categories/all",
+            "/api/categories/type/{type}"
 
     };
 
