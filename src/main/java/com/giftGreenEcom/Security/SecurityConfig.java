@@ -29,6 +29,7 @@ public class SecurityConfig {
             "/api/forgot-password",
             "/api/reset-password",
             "/api/product/all",
+            "/api/product/{id}",
             "/api/product/update/{id}",
             "/api/Allcategory",
             "/api/add",
