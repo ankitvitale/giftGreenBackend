@@ -33,6 +33,23 @@ public class BannerService {
     public Banner addBanner(String name, DiscountType discountType, String category, Long productId,
                             double discount, MultipartFile image) throws IOException {
 
+        // ❗ Prevent duplicate category banner
+        if (discountType == DiscountType.CATEGORY && category != null) {
+            boolean exists = bannerRepository.existsByCategoryAndDiscountType(category, DiscountType.CATEGORY);
+            if (exists) {
+                throw new RuntimeException("Banner for this category already exists!");
+            }
+        }
+
+        // ❗ Prevent duplicate product banner
+        if (discountType == DiscountType.PRODUCT && productId != null) {
+            boolean exists = bannerRepository.existsByProductIdAndDiscountType(productId, DiscountType.PRODUCT);
+            if (exists) {
+                throw new RuntimeException("Banner for this product already exists!");
+            }
+        }
+
+
         Banner banner = new Banner();
         banner.setName(name);
         banner.setDiscountType(discountType);

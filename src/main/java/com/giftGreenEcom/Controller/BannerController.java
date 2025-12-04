@@ -58,9 +58,7 @@ public class BannerController {
         banner.setDiscountType(discountType);
         banner.setDiscount(discount);
 
-        // Reset old values
-//        banner.setCategory(null);
-//        banner.setProductId(null);
+
 
         if (discountType == DiscountType.CATEGORY) {
             banner.setCategory(category);
