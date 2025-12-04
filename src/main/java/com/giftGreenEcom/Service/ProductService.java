@@ -190,37 +190,59 @@ public class ProductService {
         return price - (price * discountPercentage / 100);
     }
 
-    public ProductResponseDTO getProductById(Long id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+//    public ProductResponseDTO getProductById(Long id) {
+//        Product product = productRepository.findById(id)
+//                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+//
+//        ProductResponseDTO dto = new ProductResponseDTO();
+//        dto.setId(product.getId());
+//        dto.setName(product.getName());
+//        dto.setDescription(product.getDescription());
+//        dto.setCategory(product.getCategory());
+//        dto.setProductType(product.getProductType() != null ? product.getProductType().name() : null);
+//        dto.setTerrariumType(product.getTerrariumType() != null ? product.getTerrariumType().name() : null);
+//        dto.setPickupLocation(product.getPickupLocation());
+//
+//        List<VariantResponseDTO> variantDTOs = product.getVariants().stream().map(variant -> {
+//            VariantResponseDTO vdto = new VariantResponseDTO();
+//            vdto.setId(variant.getId());
+//            vdto.setColor(variant.getColor());
+//            vdto.setPrice(variant.getPrice());
+//            vdto.setDiscountedPrice(variant.);
+//            vdto.setQty(variant.getQty());
+//            vdto.setSize(variant.getSize());
+//
+//            List<String> base64Images = variant.getImages().stream()
+//                    .map(img -> Base64.getEncoder().encodeToString(img))
+//                    .collect(Collectors.toList());
+//            vdto.setImages(base64Images);
+//            return vdto;
+//        }).collect(Collectors.toList());
+//
+//        dto.setVariants(variantDTOs);
+//        return dto;
+//    }
 
-        ProductResponseDTO dto = new ProductResponseDTO();
-        dto.setId(product.getId());
-        dto.setName(product.getName());
-        dto.setDescription(product.getDescription());
-        dto.setCategory(product.getCategory());
-        dto.setProductType(product.getProductType() != null ? product.getProductType().name() : null);
-        dto.setTerrariumType(product.getTerrariumType() != null ? product.getTerrariumType().name() : null);
-        dto.setPickupLocation(product.getPickupLocation());
+public ProductResponseDTO getProductById(Long id) {
 
-        List<VariantResponseDTO> variantDTOs = product.getVariants().stream().map(variant -> {
-            VariantResponseDTO vdto = new VariantResponseDTO();
-            vdto.setId(variant.getId());
-            vdto.setColor(variant.getColor());
-            vdto.setPrice(variant.getPrice());
-            vdto.setDiscountedPrice(variant.getPrice());
-            vdto.setQty(variant.getQty());
-            vdto.setSize(variant.getSize());
+    Product product = productRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Product not found"));
 
-            List<String> base64Images = variant.getImages().stream()
-                    .map(img -> Base64.getEncoder().encodeToString(img))
-                    .collect(Collectors.toList());
-            vdto.setImages(base64Images);
-            return vdto;
-        }).collect(Collectors.toList());
+    double discountPercentage = getDiscountForProductOrCategory(
+            product.getId(),
+            product.getCategory()
+    );
 
-        dto.setVariants(variantDTOs);
-        return dto;
-    }
+    ProductResponseDTO dto = productMapper.toResponseDto(product);
+
+    // Apply discount for each variant
+    dto.getVariants().forEach(variantDto -> {
+        variantDto.setDiscountedPrice(
+                calculateDiscountedPrice(variantDto.getPrice(), discountPercentage)
+        );
+    });
+
+    return dto;
+}
 
 }
