@@ -208,6 +208,7 @@ public class ProductService {
             vdto.setId(variant.getId());
             vdto.setColor(variant.getColor());
             vdto.setPrice(variant.getPrice());
+            vdto.setDiscountedPrice(variant.getPrice());
             vdto.setQty(variant.getQty());
             vdto.setSize(variant.getSize());
 
