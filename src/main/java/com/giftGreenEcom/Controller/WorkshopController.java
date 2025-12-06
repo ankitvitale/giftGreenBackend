@@ -1,10 +1,14 @@
 package com.giftGreenEcom.Controller;
 
+import com.giftGreenEcom.DTO.WorkShopDto.WorkshopBookingDTO;
 import com.giftGreenEcom.DTO.WorkShopDto.WorkshopDTO;
+import com.giftGreenEcom.Entity.WorkshopBooking;
 import com.giftGreenEcom.Service.WorkShopService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,4 +53,23 @@ public class WorkshopController {
         workShopService.deleteWorkShop(id);
         return ResponseEntity.ok("Workshop deleted successfully with ID: " + id);
     }
+
+    @PostMapping("/book/{workshopId}")
+    @PreAuthorize("hasRole('User')")
+    public ResponseEntity<?> bookWorkshop(
+            @PathVariable Long workshopId,
+            @AuthenticationPrincipal UserDetails userDetails ) {
+
+        WorkshopBooking booking = workShopService.bookWorkshop(workshopId, userDetails.getUsername());
+        return ResponseEntity.ok(booking);
+    }
+
+
+    @GetMapping("/bookings")
+    @PreAuthorize("hasRole('Admin')")
+    public ResponseEntity<List<WorkshopBookingDTO>> getAllBookings() {
+        List<WorkshopBookingDTO> list = workShopService.getAllBookings();
+        return ResponseEntity.ok(list);
+    }
+
 }

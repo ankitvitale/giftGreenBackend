@@ -151,4 +151,40 @@ public class OrderService {
             return dto;
         }).toList();
     }
+
+    public Order cancelOrder(Long orderId, String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        if (!order.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("You are not allowed to cancel this order");
+        }
+
+        if (!order.getStatus().equals("PENDING")) {
+            throw new RuntimeException("Only PENDING orders can be cancelled");
+        }
+
+        // -----------------------------------------
+        // 🔥 Restore stock for each order item
+        // -----------------------------------------
+        for (OrderItem item : order.getOrderItems()) {
+
+            Variant variant = item.getVariant();
+
+            int previousQty = variant.getQty();
+            int updatedQty = previousQty + item.getQuantity();
+
+            variant.setQty(updatedQty);
+            variantRepository.save(variant);
+        }
+        // -----------------------------------------
+
+        order.setStatus("CANCELLED");
+        return orderRepository.save(order);
+    }
+
 }

@@ -73,4 +73,15 @@ public class OrderController {
         return ResponseEntity.ok(orders);
     }
 
+    @PostMapping("/cancel/{orderId}")
+    @PreAuthorize("hasRole('User')")
+    public ResponseEntity<?> cancelOrder(
+            @PathVariable Long orderId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        Order cancelledOrder = orderService.cancelOrder(orderId, userDetails.getUsername());
+        return ResponseEntity.ok(cancelledOrder);
+    }
+
+
 }
