@@ -91,6 +91,18 @@ public class UserService {
         ).toList();
     }
 
+    public UserRespond getCurrentUser(String email) {
+
+        User user = userDao.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return new UserRespond(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getPhone()
+        );
+    }
 
 
 //

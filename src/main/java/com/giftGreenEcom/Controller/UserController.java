@@ -8,6 +8,8 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,6 +45,14 @@ public class UserController {
 
 
 
+    @GetMapping("/current-user")
+    @PreAuthorize("hasAnyRole('User','Admin')")
+    public ResponseEntity<UserRespond> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
+
+        UserRespond currentUser = userService.getCurrentUser(userDetails.getUsername());
+
+        return ResponseEntity.ok(currentUser);
+    }
 
 
 

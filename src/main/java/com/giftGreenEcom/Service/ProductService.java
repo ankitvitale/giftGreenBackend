@@ -10,7 +10,10 @@ import com.giftGreenEcom.Entity.Product;
 import com.giftGreenEcom.Entity.Variant;
 import com.giftGreenEcom.Mapper.ProductMapper;
 import com.giftGreenEcom.Repository.BannerRepository;
+import com.giftGreenEcom.Repository.OrderItemRepository;
 import com.giftGreenEcom.Repository.ProductRepository;
+import com.giftGreenEcom.Repository.VariantRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +32,12 @@ public class ProductService {
     private  ProductMapper productMapper;
     @Autowired
     private  BannerRepository bannerRepository;
+
+    @Autowired
+    private OrderItemRepository orderItemRepository;
+    @Autowired
+    private VariantRepository variantRepository;
+
 
     public void addProduct(ProductRequestDTO dto) throws IOException {
         Product product = new Product();
@@ -140,10 +149,28 @@ public class ProductService {
     }
 
 
-    public void deleteProduct(Long id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+//    public void deleteProduct(Long id) {
+//        Product product = productRepository.findById(id)
+//                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+//
+//        productRepository.delete(product);
+//    }
 
+    @Transactional
+    public void deleteProduct(Long id) {
+
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        // 1️⃣ Delete order items of each variant
+        for (Variant v : product.getVariants()) {
+            orderItemRepository.deleteByVariantId(v.getId());
+        }
+
+        // 2️⃣ Delete variants
+        variantRepository.deleteAll(product.getVariants());
+
+        // 3️⃣ Delete product
         productRepository.delete(product);
     }
 

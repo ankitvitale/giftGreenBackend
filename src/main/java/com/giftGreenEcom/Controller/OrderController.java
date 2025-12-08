@@ -74,7 +74,7 @@ public class OrderController {
     }
 
     @PostMapping("/cancel/{orderId}")
-    @PreAuthorize("hasRole('User')")
+    @PreAuthorize("hasAnyRole('User','Admin')")
     public ResponseEntity<?> cancelOrder(
             @PathVariable Long orderId,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -82,6 +82,7 @@ public class OrderController {
         Order cancelledOrder = orderService.cancelOrder(orderId, userDetails.getUsername());
         return ResponseEntity.ok(cancelledOrder);
     }
+
 
 
 }

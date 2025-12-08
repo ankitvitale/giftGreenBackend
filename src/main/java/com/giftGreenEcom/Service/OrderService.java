@@ -36,6 +36,9 @@ public class OrderService {
     @Autowired
     private  CartRepository cartRepository;
 
+    @Autowired
+    private AdminRepository adminRepository;
+
     public Order placeOrder(String email, PlaceOrderRequest request) {
 
         User user = userRepository.findByEmail(email)
@@ -159,32 +162,30 @@ public class OrderService {
 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
+        Admin admin= adminRepository.findByEmail(email);
+        boolean isAdmin = admin.getRole().stream()
+                .anyMatch(role -> role.getRoleName().equals("Admin"));
 
-        if (!order.getUser().getId().equals(user.getId())) {
+        // If not admin → user can cancel only own order
+        if (!isAdmin && !order.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("You are not allowed to cancel this order");
         }
 
+        // Only pending orders can be cancelled
         if (!order.getStatus().equals("PENDING")) {
             throw new RuntimeException("Only PENDING orders can be cancelled");
         }
 
-        // -----------------------------------------
-        // 🔥 Restore stock for each order item
-        // -----------------------------------------
+        // Restore stock
         for (OrderItem item : order.getOrderItems()) {
-
             Variant variant = item.getVariant();
-
-            int previousQty = variant.getQty();
-            int updatedQty = previousQty + item.getQuantity();
-
-            variant.setQty(updatedQty);
+            variant.setQty(variant.getQty() + item.getQuantity());
             variantRepository.save(variant);
         }
-        // -----------------------------------------
 
         order.setStatus("CANCELLED");
         return orderRepository.save(order);
     }
+
 
 }
